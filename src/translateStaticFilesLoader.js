@@ -21,20 +21,35 @@ angular.module('pascalprecht.translate')
     }
 
     var deferred = $q.defer();
-
-    $http({
-      url: [
-        options.prefix,
-        options.key,
-        options.suffix
-      ].join(''),
-      method: 'GET',
-      params: ''
-    }).success(function (data) {
-      deferred.resolve(data);
-    }).error(function (data) {
-      deferred.reject(options.key);
-    });
+    
+    if(options.methodType && options.methodType==='jsonp') {
+        $http.jsonp([
+            options.prefix,
+            options.key,
+            options.suffix,
+            '?callback=JSON_CALLBACK'
+          ].join(''))
+          .success(function (data) {
+            deferred.resolve(data);
+          }).error(function (data) {
+            deferred.reject(options.key);
+          });
+    }
+    else {
+        $http({
+          url: [
+            options.prefix,
+            options.key,
+            options.suffix
+          ].join(''),
+          method: 'GET',
+          params: ''
+        }).success(function (data) {
+          deferred.resolve(data);
+        }).error(function (data) {
+          deferred.reject(options.key);
+        });
+    }
 
     return deferred.promise;
   };
